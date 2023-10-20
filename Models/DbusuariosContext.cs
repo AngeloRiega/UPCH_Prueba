@@ -49,7 +49,7 @@ public partial class DbusuariosContext : DbContext
             entity.Property(e => e.Ciudad).HasMaxLength(50);
             entity.Property(e => e.CodigoPostal).HasMaxLength(10);
             entity.Property(e => e.Direccion).HasMaxLength(100);
-            entity.Property(e => e.Estado).HasMaxLength(50);
+            entity.Property(e => e.Provincia).HasMaxLength(50);
             entity.Property(e => e.Telefono).HasMaxLength(20);
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
