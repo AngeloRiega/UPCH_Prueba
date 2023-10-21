@@ -51,7 +51,7 @@ namespace UPCH_Prueba.Controllers
 
         // GET: api/Usuarios/5/detalles
         [HttpGet("{id}/detalles")]
-        public async Task<ActionResult<Usuario>> GetUsuarioDetalle(int id)
+        public async Task<ActionResult<IEnumerable<Detalle>>> GetUsuarioDetalle(int id)
         {
             if (_context.Usuarios == null)
             {
@@ -61,6 +61,11 @@ namespace UPCH_Prueba.Controllers
             var usuario = await _context.Usuarios.Include(u => u.Detalles).FirstOrDefaultAsync(u => u.UserId == id);
 
             if (usuario == null)
+            {
+                return NotFound($"No se encontró el UserId {id}");
+            }
+
+            if (!usuario.Detalles.Any())
             {
                 return NotFound($"No se encontraron detalles con el UserId {id}");
             }
