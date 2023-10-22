@@ -6,63 +6,14 @@ using Microsoft.EntityFrameworkCore;
 using UPCH_Prueba.Controllers;
 using UPCH_Prueba.Models;
 
-namespace UPCH_Prueba.Tests
+namespace UPCH_Prueba_Tests
 {
-    public class UsuariosControllerTests
+    public class UsuariosControllerTests : TestBase
     {
-        private DbusuariosContext GetTestDbContext()
-        {
-            // Configura una base de datos en memoria para las pruebas.
-            var options = new DbContextOptionsBuilder<DbusuariosContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-
-            using (var context = new DbusuariosContext(options))
-            {
-                var usuario1 = new Usuario
-                {
-                    UserId = 1,
-                    Nombre = "Juan",
-                    Apellido = "Pérez",
-                    Email = "juan.perez@gmail.com",
-                    FechaRegistro = new DateTime(),
-                    Activo = true
-                };
-                context.Usuarios.Add(usuario1);
-
-                var usuario2 = new Usuario
-                {
-                    UserId = 2,
-                    Nombre = "María",
-                    Apellido = "Gómez",
-                    Email = "maria.gomez@gmail.com",
-                    FechaRegistro = new DateTime(),
-                    Activo = false
-                };
-                context.Usuarios.Add(usuario2);
-
-                var detalle1 = new Detalle
-                {
-                    DetalleId = 1,
-                    UserId = 1,
-                    Telefono = "123456789",
-                    Direccion = "Calle 123",
-                    Ciudad = "Ciudad",
-                    Provincia = "Provincia",
-                    CodigoPostal = "12345"
-                };
-                context.Detalles.Add(detalle1);
-
-                context.SaveChanges();
-            }
-
-            return new DbusuariosContext(options);
-        }
-
-
         [Fact]
-        public async Task GetUsuarios_ReturnsListOfUsers()
+        public async Task GetUsuarios_ReturnsListaUsuarios()
         {
+            // Arrange
             using (var context = GetTestDbContext())
             {
                 var controller = new UsuariosController(context);
@@ -78,8 +29,9 @@ namespace UPCH_Prueba.Tests
         }
 
         [Fact]
-        public async Task GetUsuario_ReturnsUser()
+        public async Task GetUsuario_ReturnsUsuario()
         {
+            // Arrange
             using (var context = GetTestDbContext())
             {
                 var controller = new UsuariosController(context);
@@ -96,8 +48,25 @@ namespace UPCH_Prueba.Tests
         }
 
         [Fact]
-        public async Task GetUsuarioDetalle_ReturnsUserDetails()
+        public async Task GetUsuario_NotFoundNoExisteUsuario()
         {
+            // Arrange
+            using (var context = GetTestDbContext())
+            {
+                var controller = new UsuariosController(context);
+
+                // Act
+                var result = await controller.GetUsuario(999);
+
+                // Assert
+                Assert.IsType<NotFoundObjectResult>(result.Result!);
+            }
+        }
+
+        [Fact]
+        public async Task GetUsuarioDetalle_ReturnsUsuarioDetalles()
+        {
+            // Arrange
             using (var context = GetTestDbContext())
             {
                 var controller = new UsuariosController(context);
@@ -117,6 +86,7 @@ namespace UPCH_Prueba.Tests
         [Fact]
         public async Task GetUsuarioDetalle_NotFoundNoExisteDetalle()
         {
+            // Arrange
             using (var context = GetTestDbContext())
             {
                 var controller = new UsuariosController(context);
@@ -132,6 +102,7 @@ namespace UPCH_Prueba.Tests
         [Fact]
         public async Task GetUsuarioDetalle_NotFoundNoExisteUsuario()
         {
+            // Arrange
             using (var context = GetTestDbContext())
             {
                 var controller = new UsuariosController(context);
@@ -145,8 +116,9 @@ namespace UPCH_Prueba.Tests
         }
 
         [Fact]
-        public async Task PutUsuario_UpdatesUser()
+        public async Task PutUsuario_UpdatesUsuario()
         {
+            // Arrange
             using (var context = GetTestDbContext())
             {
                 var controller = new UsuariosController(context);
@@ -157,15 +129,16 @@ namespace UPCH_Prueba.Tests
 
                 // Assert
                 Assert.IsType<OkObjectResult>(result);
-                var updatedUser = context.Usuarios.Find(1);
-                Assert.Equal("NuevoNombre", updatedUser!.Nombre);
-                Assert.Equal("NuevoApellido", updatedUser.Apellido);
+                var resultUsuario = context.Usuarios.Find(1);
+                Assert.Equal("NuevoNombre", resultUsuario!.Nombre);
+                Assert.Equal("NuevoApellido", resultUsuario.Apellido);
             }
         }
 
         [Fact]
-        public async Task PutUsuario_BadRequestDiferenteId() // Se esta haciendo update al Id.
+        public async Task PutUsuario_BadRequestDiferenteId() // Se esta haciendo update a un Id diferente.
         {
+            // Arrange
             using (var context = GetTestDbContext())
             {
                 var controller = new UsuariosController(context);
@@ -179,28 +152,30 @@ namespace UPCH_Prueba.Tests
             }
         }
 
-
         [Fact]
-        public async Task PostUsuario_CreatesUser()
+        public async Task PostUsuario_CreatesUsuario()
         {
+            // Arrange
             using (var context = GetTestDbContext())
             {
                 var controller = new UsuariosController(context);
-                var newUser = new Usuario { Nombre = "NuevoUsuario", Apellido = "ApellidoNuevo", Email = "nuevo.usuario@gmail.com", FechaRegistro = new DateTime(), Activo = true };
+                var newUsuario = new Usuario { Nombre = "NuevoUsuario", Apellido = "ApellidoNuevo", Email = "nuevo.usuario@gmail.com", FechaRegistro = new DateTime(), Activo = true };
 
                 // Act
-                var result = await controller.PostUsuario(newUser);
+                var result = await controller.PostUsuario(newUsuario);
 
                 // Assert
                 var actionResult = Assert.IsType<ActionResult<Usuario>>(result);
-                var createdUser = Assert.IsAssignableFrom<Usuario>(((ObjectResult)actionResult.Result!).Value);
-                Assert.Equal(newUser.Nombre, createdUser.Nombre);
+                var createdUsuario = Assert.IsAssignableFrom<Usuario>(((ObjectResult)actionResult.Result!).Value);
+                Assert.Equal(newUsuario.Nombre, createdUsuario.Nombre);
+                Assert.IsType<int>(createdUsuario.UserId);
             }
         }
 
         [Fact]
-        public async Task DeleteUsuario_DeletesUser()
+        public async Task DeleteUsuario_DeletesUsuario()
         {
+            // Arrange
             using (var context = GetTestDbContext())
             {
                 var controller = new UsuariosController(context);
@@ -210,14 +185,31 @@ namespace UPCH_Prueba.Tests
 
                 // Assert
                 Assert.IsType<OkObjectResult>(result);
-                var deletedUser = context.Usuarios.Find(2);
-                Assert.Null(deletedUser);
+                var deletedUsuario = context.Usuarios.Find(2);
+                Assert.Null(deletedUsuario);
+            }
+        }
+
+        [Fact]
+        public async Task DeleteUsuario_NotFoundNoExisteUsuario()
+        {
+            // Arrange
+            using (var context = GetTestDbContext())
+            {
+                var controller = new UsuariosController(context);
+
+                // Act
+                var result = await controller.DeleteUsuario(999);
+
+                // Assert
+                Assert.IsType<NotFoundObjectResult>(result);
             }
         }
 
         [Fact]
         public async Task DeleteUsuario_BadRequestTieneDetalles() // El usuario tiene detalles relacionados.
         {
+            // Arrange
             using (var context = GetTestDbContext())
             {
                 var controller = new UsuariosController(context);
@@ -228,6 +220,45 @@ namespace UPCH_Prueba.Tests
                 // Assert
                 Assert.IsType<BadRequestObjectResult>(result);
             }
+        }
+
+        [Fact]
+        public void CheckContextUsuarios_ContextNotNullAndDetallesNotNull_ReturnsTrue()
+        {
+            // Arrange
+            var controller = new UsuariosController();
+
+            // Act
+            bool result = controller.CheckContextUsuarios(new DbusuariosContext());
+
+            // Assert
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void CheckContextUsuarios_ContextNotNullAndDetallesNull_ReturnsFalse()
+        {
+            // Arrange
+            var controller = new UsuariosController();
+
+            // Act
+            bool result = controller.CheckContextUsuarios(new DbusuariosContext { Usuarios = null! });
+
+            // Assert
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void CheckContextUsuarios_ContextNull_ReturnsFalse()
+        {
+            // Arrange
+            var controller = new UsuariosController();
+
+            // Act
+            bool result = controller.CheckContextUsuarios(null);
+
+            // Assert
+            Assert.False(result);
         }
     }
 }

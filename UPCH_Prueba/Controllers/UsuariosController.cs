@@ -13,8 +13,14 @@ namespace UPCH_Prueba.Controllers
     [ApiController]
     public class UsuariosController : ControllerBase
     {
-        private readonly DbusuariosContext _context;
+        private readonly DbusuariosContext _context = new DbusuariosContext();
 
+        public UsuariosController()
+        {
+
+        }
+
+        [ActivatorUtilitiesConstructor]
         public UsuariosController(DbusuariosContext context)
         {
             _context = context;
@@ -24,10 +30,8 @@ namespace UPCH_Prueba.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
-          if (_context.Usuarios == null)
-          {
-              return NotFound();
-          }
+            if (!CheckContextUsuarios(_context)) return Problem("Entity set 'DbusuariosContext.Usuarios' is null.");
+
             return Ok(await _context.Usuarios.ToListAsync());
         }
 
@@ -35,10 +39,8 @@ namespace UPCH_Prueba.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Usuario>> GetUsuario(int id)
         {
-          if (_context.Usuarios == null)
-          {
-              return NotFound();
-          }
+            if (!CheckContextUsuarios(_context)) return Problem("Entity set 'DbusuariosContext.Usuarios' is null.");
+
             var usuario = await _context.Usuarios.FindAsync(id);
 
             if (usuario == null)
@@ -53,11 +55,8 @@ namespace UPCH_Prueba.Controllers
         [HttpGet("{id}/detalles")]
         public async Task<ActionResult<IEnumerable<Detalle>>> GetUsuarioDetalle(int id)
         {
-            if (_context.Usuarios == null)
-            {
-                return NotFound();
-            }
-            
+            if (!CheckContextUsuarios(_context)) return Problem("Entity set 'DbusuariosContext.Usuarios' is null.");
+
             var usuario = await _context.Usuarios.Include(u => u.Detalles).FirstOrDefaultAsync(u => u.UserId == id);
 
             if (usuario == null)
@@ -78,6 +77,8 @@ namespace UPCH_Prueba.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUsuario(int id, Usuario usuario)
         {
+            if (!CheckContextUsuarios(_context)) return Problem("Entity set 'DbusuariosContext.Usuarios' is null.");
+
             if (id != usuario.UserId)
             {
                 return BadRequest($"No coincide el UserId. body: {usuario.UserId}, path: {id}");
@@ -91,14 +92,7 @@ namespace UPCH_Prueba.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UsuarioExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest();
             }
 
             return Ok("PUT exitoso.");
@@ -109,10 +103,8 @@ namespace UPCH_Prueba.Controllers
         [HttpPost]
         public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
         {
-          if (_context.Usuarios == null)
-          {
-              return Problem("Entity set 'DbusuariosContext.Usuarios'  is null.");
-          }
+            if (!CheckContextUsuarios(_context)) return Problem("Entity set 'DbusuariosContext.Usuarios' is null.");
+
             _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();
 
@@ -123,10 +115,7 @@ namespace UPCH_Prueba.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUsuario(int id)
         {
-            if (_context.Usuarios == null)
-            {
-                return NotFound();
-            }
+            if (!CheckContextUsuarios(_context)) return Problem("Entity set 'DbusuariosContext.Usuarios' is null.");
 
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null)
@@ -148,9 +137,24 @@ namespace UPCH_Prueba.Controllers
             return Ok("DELETE exitoso.");
         }
 
-        private bool UsuarioExists(int id)
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public bool CheckContextUsuarios(DbusuariosContext? context)
         {
-            return (_context.Usuarios?.Any(e => e.UserId == id)).GetValueOrDefault();
+            if (context != null)
+            {
+                if (context.Usuarios == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
