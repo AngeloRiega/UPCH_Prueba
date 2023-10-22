@@ -13,8 +13,14 @@ namespace UPCH_Prueba.Controllers
     [ApiController]
     public class DetallesController : ControllerBase
     {
-        private readonly DbusuariosContext _context;
+        private readonly DbusuariosContext _context = new DbusuariosContext();
 
+        public DetallesController()
+        {
+
+        }
+
+        [ActivatorUtilitiesConstructor]
         public DetallesController(DbusuariosContext context)
         {
             _context = context;
@@ -24,10 +30,8 @@ namespace UPCH_Prueba.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Detalle>>> GetDetalles()
         {
-          if (_context.Detalles == null)
-          {
-              return NotFound();
-          }
+            if (!CheckContextDetalles(_context)) return Problem("Entity set 'DbusuariosContext.Detalles' is null.");
+
             return Ok(await _context.Detalles.ToListAsync());
         }
 
@@ -35,10 +39,8 @@ namespace UPCH_Prueba.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Detalle>> GetDetalle(int id)
         {
-          if (_context.Detalles == null)
-          {
-              return NotFound();
-          }
+            if (!CheckContextDetalles(_context)) return Problem("Entity set 'DbusuariosContext.Detalles' is null.");
+
             var detalle = await _context.Detalles.FindAsync(id);
 
             if (detalle == null)
@@ -54,6 +56,8 @@ namespace UPCH_Prueba.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDetalle(int id, Detalle detalle)
         {
+            if (!CheckContextDetalles(_context)) return Problem("Entity set 'DbusuariosContext.Detalles' is null.");
+
             if (id != detalle.DetalleId)
             {
                 return BadRequest($"No coincide el DetalleId. body: {detalle.DetalleId}, path: {id}");
@@ -74,14 +78,7 @@ namespace UPCH_Prueba.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!DetalleExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest();
             }
 
             return Ok("PUT exitoso.");
@@ -92,10 +89,8 @@ namespace UPCH_Prueba.Controllers
         [HttpPost]
         public async Task<ActionResult<Detalle>> PostDetalle(Detalle detalle)
         {
-          if (_context.Detalles == null)
-          {
-              return Problem("Entity set 'DbusuariosContext.Detalles'  is null.");
-          }
+            if (!CheckContextDetalles(_context)) return Problem("Entity set 'DbusuariosContext.Detalles' is null.");
+
             _context.Detalles.Add(detalle);
             await _context.SaveChangesAsync();
 
@@ -106,10 +101,7 @@ namespace UPCH_Prueba.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDetalle(int id)
         {
-            if (_context.Detalles == null)
-            {
-                return NotFound();
-            }
+            if (!CheckContextDetalles(_context)) return Problem("Entity set 'DbusuariosContext.Detalles' is null.");
 
             var detalle = await _context.Detalles.FindAsync(id);
             if (detalle == null)
@@ -123,9 +115,24 @@ namespace UPCH_Prueba.Controllers
             return Ok("DELETE exitoso.");
         }
 
-        private bool DetalleExists(int id)
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public bool CheckContextDetalles (DbusuariosContext? context)
         {
-            return (_context.Detalles?.Any(e => e.DetalleId == id)).GetValueOrDefault();
+            if (context != null)
+            {
+                if (context.Detalles == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

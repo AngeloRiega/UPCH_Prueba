@@ -24,6 +24,7 @@ Requerimientos Técnicos:
 - ASP.NET Core
 - .NET 7.0 (v7.0.401)
 - Microsoft SQL Server 2019 - 15.0.4153.1 (X64)
+- xUnit
 
 
 ## Features
@@ -38,6 +39,10 @@ Requerimientos Técnicos:
 - Collection del Postman
 
 ![Postman](./public/img/postman.png)
+
+- Code coverage
+
+![CodeCoverage](./public/img/codecoverage.png)
 
 
 ## Setup
@@ -56,9 +61,6 @@ Requerimientos Técnicos:
 ## Room for Improvement
 Room for improvement:
 - Dockerizar
-
-To do:
-- Agregar tests.
 
 
 ## Contact

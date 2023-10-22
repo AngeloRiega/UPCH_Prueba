@@ -62,8 +62,6 @@ public partial class DbusuariosContext : DbContext
         {
             entity.HasKey(e => e.UserId).HasName("PK__Usuarios__1788CCAC6C3C74B7");
 
-            entity.HasIndex(e => e.Email, "UQ__Usuarios__A9D10534B95F5923").IsUnique();
-
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.Apellido).HasMaxLength(50);
             entity.Property(e => e.Email).HasMaxLength(100);
