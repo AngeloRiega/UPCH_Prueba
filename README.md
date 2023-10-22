@@ -34,15 +34,15 @@ Requerimientos Técnicos:
 ## Screenshots
 - Swagger del Api
 
-![Swagger](./public/img/swagger.png)
+![Swagger](UPCH_Prueba/public/img/swagger.png)
 
 - Collection del Postman
 
-![Postman](./public/img/postman.png)
+![Postman](UPCH_Prueba/public/img/postman.png)
 
 - Code coverage
 
-![CodeCoverage](./public/img/codecoverage.png)
+![CodeCoverage](UPCH_Prueba/public/img/codecoverage.png)
 
 
 ## Setup
